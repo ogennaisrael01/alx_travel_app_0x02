@@ -47,7 +47,7 @@ def register(request: Request):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_fields = ["bookings__user"]
     search_fields = []
