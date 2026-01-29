@@ -35,4 +35,14 @@ def get_payment_by_tx_ref(tx_ref: str, user) -> dict:
         "payment": payment
     }
 
-
+def _genarat_context_for_product_reports(reports: dict):
+    subject = "Monthly Products Report"
+    template_name = "listings/products_reports.html"
+    context = {
+        "email": reports.get("email"),
+        "subject": subject,
+        "template_name": template_name,
+        "product": reports.get("products"),
+        "booking": reports.ger("bookings")
+    }
+    return context

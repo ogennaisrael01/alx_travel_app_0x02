@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'alx_travel_app.listings',
-    "django_filters"
+    "django_filters",
+    "django_celery_beat",
+    "django_celery_results"
 
 ]
 
@@ -130,3 +132,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default='amqp://guest:guest@localhost:5672//') # RabbitMQ broker URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = 'UTC'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True 

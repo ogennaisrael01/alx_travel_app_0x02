@@ -18,14 +18,47 @@ service:
       intervals: 5s
       timeout: 5s
       retries: 5
-    
+
+  rabbtimq:
+    image: rabbitmq:4.2-management-alpine
+    container_name: rabbit_mq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${"RABBITMQ_DEFAULT_USER"}
+      RABBITMQ_DEFAULT_PASSWORD: ${RABBITMQ_DEFAULT_PASSWORD}
+    env_file:
+      - .env
+    ports: 
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data/var/lib:/path/var/rabbitmq
+    health_check:
+      test: ["CMD-SHELL", "rabbitmqctl status"]
+      intervals: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: redis_server
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/var/lib/redis/data
+    ports:
+      - "6379:6379"
+
   web:
     build: .
     container_name: travel_app
     depends_on:
       db:
         condition: service_healty
+      rabbitmq:
+        condition: service_healthy
       migrate:
+        condition: service_completed_successfully
+      redis:
         condition: service_completed_successfully
     env_file:
       - .env
@@ -35,7 +68,7 @@ service:
     restart: unless-stopped
     volumes:
       - .:/app
-      
+
   migrate:
     build: .
     container_name: db_migrate
@@ -45,3 +78,19 @@ service:
     command: ["python3", "manage.py", "migrate"]
     env_file:
       - .env
+  
+  worker:
+    build: .
+    container_name: celery-worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      web:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: ["celery", "-A", "alx_travel_app", "worker", "--loglevel=DEBUG"]
+    restart: unless-stopped
+    
