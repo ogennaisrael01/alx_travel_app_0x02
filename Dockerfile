@@ -1,20 +1,22 @@
-FROM python:3.13
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-PYTHONUNBUFFERED=1
+FROM python:alpine3.23 AS builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl
+RUN pip install --upgrade pip
 
-COPY --from=ghcr.io/astral-sh/uv:0.9.9 /uv /uvx /bin/
-RUN uv venv
-COPY ./alx_travel_app/alx_travel_app/requirements.txt .
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-RUN uv pip install -r requirements.txt
+COPY . .
 
-COPY alx_travel_app/alx_travel_app .
+COPY requirements.txt /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
 
 EXPOSE 8000
+
+ENV PYTHONPATH='/app'
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

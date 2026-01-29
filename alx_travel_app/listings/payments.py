@@ -25,15 +25,8 @@ def get_headers():
         }
     return headers
 
-def payment_init(
-        email: str,
-        amount: float,
-        first_name: str,
-        last_name: str,
-        pmt_ref: str,
-        phone_number: str,
-
-) -> dict: 
+def payment_init(email: str, amount: float, first_name: str,
+            last_name: str, pmt_ref: str, phone_number: str) -> dict: 
 
     if not any([email, amount, first_name, last_name, pmt_ref]):
         raise ValueError("All payment fields are required")
